@@ -19,7 +19,6 @@ package org.springframework.security.oauth2.server.resource.web;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -112,13 +111,20 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	}
 
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
-		String wwwAuthenticate = "Bearer";
+		final StringBuilder wwwAuthenticate = new StringBuilder();
+		wwwAuthenticate.append("Bearer");
 		if (!parameters.isEmpty()) {
-			wwwAuthenticate += parameters.entrySet().stream()
-					.map(attribute -> attribute.getKey() + "=\"" + attribute.getValue() + "\"")
-					.collect(Collectors.joining(", ", " ", ""));
+			wwwAuthenticate.append(" ");
+			int i = 0;
+			for (Map.Entry<String, String> entry : parameters.entrySet()) {
+				wwwAuthenticate.append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");
+						if (i != parameters.size() - 1) {
+							wwwAuthenticate.append(", ");
+						}
+				i++;
+			}
 		}
 
-		return wwwAuthenticate;
+		return wwwAuthenticate.toString();
 	}
 }

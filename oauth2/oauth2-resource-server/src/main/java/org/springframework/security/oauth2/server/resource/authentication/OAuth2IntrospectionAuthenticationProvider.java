@@ -20,7 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -128,11 +129,14 @@ public final class OAuth2IntrospectionAuthenticationProvider implements Authenti
 	}
 
 	private Collection<GrantedAuthority> extractAuthorities(Map<String, Object> claims) {
-		Collection<String> scopes = (Collection<String>) claims.get(SCOPE);
-		return Optional.ofNullable(scopes).orElse(Collections.emptyList())
-				.stream()
-				.map(authority -> new SimpleGrantedAuthority("SCOPE_" + authority))
-				.collect(Collectors.toList());
+		Collection<String> scopes = Optional.ofNullable((Collection<String>) claims.get(SCOPE))
+				.orElse(Collections.emptyList());
+
+		List<GrantedAuthority> result = new ArrayList<>();
+		for (String authority : scopes) {
+			result.add(new SimpleGrantedAuthority("SCOPE_" + authority));
+		}
+		return result;
 	}
 
 	private static BearerTokenError invalidToken(String message) {

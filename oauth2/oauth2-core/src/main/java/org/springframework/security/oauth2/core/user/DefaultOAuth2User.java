@@ -20,16 +20,17 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
+import java.util.Collections;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
+import java.util.SortedSet;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.ArrayList;
 
 /**
  * The default implementation of an {@link OAuth2User}.
@@ -127,10 +128,31 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		sb.append("Name: [");
 		sb.append(this.getName());
 		sb.append("], Granted Authorities: [");
-		sb.append(this.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(", ")));
+		sb.append(collectAuthorities(this.getAuthorities()));
 		sb.append("], User Attributes: [");
-		sb.append(this.getAttributes().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(", ")));
+		sb.append(collectAttributes(this.attributes.entrySet()));
 		sb.append("]");
+		return sb.toString();
+	}
+
+	private String collectAuthorities(Collection<? extends GrantedAuthority> authorities) {
+		final StringBuilder sb = new StringBuilder();
+		final List<GrantedAuthority> list = new ArrayList<>(authorities);
+		for (int i = 0; i < list.size() - 1; i++) {
+			sb.append(list.get(i).getAuthority()).append(", ");
+		}
+		sb.append(list.get(list.size() - 1).getAuthority());
+		return sb.toString();
+	}
+
+	private String collectAttributes(Set<Map.Entry<String, Object>> entrySet) {
+		final List<Map.Entry<String, Object>> list = new ArrayList<>(entrySet);
+		final StringBuilder sb = new StringBuilder();
+
+		for (int i = 0; i< list.size() - 1; i++) {
+			sb.append(list.get(i).getKey()).append("=").append(list.get(i).getValue()).append(", ");
+		}
+		sb.append(list.get(list.size() - 1).getKey()).append("=").append(list.get(list.size() - 1).getValue());
 		return sb.toString();
 	}
 }
