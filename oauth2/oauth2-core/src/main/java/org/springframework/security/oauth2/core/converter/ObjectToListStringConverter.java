@@ -20,6 +20,7 @@ import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.util.ClassUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Joe Grandja

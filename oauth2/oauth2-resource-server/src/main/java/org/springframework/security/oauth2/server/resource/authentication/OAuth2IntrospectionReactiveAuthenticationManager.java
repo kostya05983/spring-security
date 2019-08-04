@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import reactor.core.publisher.Mono;
