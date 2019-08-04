@@ -17,11 +17,7 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import reactor.core.publisher.Mono;
@@ -108,11 +104,13 @@ public class OAuth2IntrospectionReactiveAuthenticationManager implements Reactiv
 	}
 
 	private Collection<GrantedAuthority> extractAuthorities(Map<String, Object> claims) {
-		Collection<String> scopes = (Collection<String>) claims.get(SCOPE);
-		return Optional.ofNullable(scopes).orElse(Collections.emptyList())
-				.stream()
-				.map(authority -> new SimpleGrantedAuthority("SCOPE_" + authority))
-				.collect(Collectors.toList());
+		Collection<String> scopes = Optional.ofNullable((Collection<String>) claims.get(SCOPE))
+				.orElse(Collections.emptyList());
+		Collection<GrantedAuthority> results = new ArrayList<>();
+		for (String scope : scopes) {
+			results.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+		}
+		return results;
 	}
 
 	private static BearerTokenError invalidToken(String message) {

@@ -59,10 +59,12 @@ public enum MacAlgorithm implements JwsAlgorithm {
 	 * @return the resolved {@code MacAlgorithm}, or {@code null} if not found
 	 */
 	public static MacAlgorithm from(String name) {
-		return Stream.of(values())
-				.filter(algorithm -> algorithm.getName().equals(name))
-				.findFirst()
-				.orElse(null);
+		for (MacAlgorithm algorithm : values()) {
+			if (algorithm.getName().equals(name)) {
+				return algorithm;
+			}
+		}
+		return null;
 	}
 
 	/**

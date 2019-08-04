@@ -21,11 +21,8 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGra
 import org.springframework.util.Assert;
 
 import java.time.Duration;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * A builder that builds a {@link DelegatingOAuth2AuthorizedClientProvider} composed of
@@ -254,10 +251,10 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link DelegatingOAuth2AuthorizedClientProvider}
 	 */
 	public OAuth2AuthorizedClientProvider build() {
-		List<OAuth2AuthorizedClientProvider> authorizedClientProviders =
-				this.builders.values().stream()
-						.map(Builder::build)
-						.collect(Collectors.toList());
+		List<OAuth2AuthorizedClientProvider> authorizedClientProviders = new ArrayList<>();
+		for (Builder builder : this.builders.values()) {
+			authorizedClientProviders.add(builder.build());
+		}
 		return new DelegatingOAuth2AuthorizedClientProvider(authorizedClientProviders);
 	}
 
