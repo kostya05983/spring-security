@@ -22,6 +22,8 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Delegates to a collection of {@link ServerAuthenticationSuccessHandler} implementations.

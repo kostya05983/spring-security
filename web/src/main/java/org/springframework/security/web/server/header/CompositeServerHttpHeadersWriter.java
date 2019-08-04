@@ -16,6 +16,8 @@
 package  org.springframework.security.web.server.header;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.web.server.ServerWebExchange;
 
@@ -46,4 +48,5 @@ public class CompositeServerHttpHeadersWriter implements ServerHttpHeadersWriter
 		}
 		return Mono.when(results);
 	}
+
 }
