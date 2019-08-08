@@ -20,8 +20,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -58,7 +56,7 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
 		Assert.notEmpty(users, "users cannot be null or empty");
 		final ConcurrentHashMap<String, UserDetails> map = new ConcurrentHashMap<>();
-		for(UserDetails user: users) {
+		for (UserDetails user: users) {
 			map.put(user.getUsername(), user);
 		}
 		this.users = map;
