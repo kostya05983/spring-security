@@ -90,8 +90,9 @@ public final class BearerTokenAccessDeniedHandler implements AccessDeniedHandler
 
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
 		final StringBuilder wwwAuthenticate = new StringBuilder();
-		wwwAuthenticate.append("Bearer ");
+		wwwAuthenticate.append("Bearer");
 		if (!parameters.isEmpty()) {
+			wwwAuthenticate.append(" ");
 			int i = 0;
 			for(Map.Entry<String, String> entry : parameters.entrySet()) {
 				wwwAuthenticate.append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");

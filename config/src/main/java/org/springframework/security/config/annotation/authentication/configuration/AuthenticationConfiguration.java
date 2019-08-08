@@ -43,7 +43,10 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -174,10 +177,10 @@ public class AuthenticationConfiguration {
 			return Collections.emptyList();
 		}
 		for (String beanName: beanNamesForType) {
-			 if (((ConfigurableApplicationContext) applicationContext).getBeanFactory()
-					 .getBeanDefinition(beanName).isPrimary()) {
-				 list.add(beanName);
-			 }
+			if (((ConfigurableApplicationContext) applicationContext).getBeanFactory()
+					.getBeanDefinition(beanName).isPrimary()) {
+				list.add(beanName);
+			}
 		}
 		return list;
 	}
