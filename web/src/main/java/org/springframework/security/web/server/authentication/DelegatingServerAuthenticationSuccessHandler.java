@@ -21,9 +21,9 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Delegates to a collection of {@link ServerAuthenticationSuccessHandler} implementations.

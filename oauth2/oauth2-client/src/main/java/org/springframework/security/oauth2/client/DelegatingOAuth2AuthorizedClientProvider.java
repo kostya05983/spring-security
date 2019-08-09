@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * An implementation of an {@link OAuth2AuthorizedClientProvider} that simply delegates

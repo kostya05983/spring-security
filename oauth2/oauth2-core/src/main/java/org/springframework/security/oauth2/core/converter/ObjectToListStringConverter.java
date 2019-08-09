@@ -19,8 +19,12 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.util.ClassUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * @author Joe Grandja
@@ -60,7 +64,7 @@ final class ObjectToListStringConverter implements ConditionalGenericConverter {
 		}
 		if (source instanceof Collection) {
 			final Collection<String> results = new ArrayList<>();
-			for (Object object : ((Collection<?>)source)) {
+			for (Object object : ((Collection<?>) source)) {
 				if (object != null) {
 					results.add(object.toString());
 				}
