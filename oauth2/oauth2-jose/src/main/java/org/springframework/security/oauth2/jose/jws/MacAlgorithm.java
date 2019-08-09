@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.jose.jws;
 
-import java.util.stream.Stream;
 
 /**
  * An enumeration of the cryptographic algorithms defined by the JSON Web Algorithms (JWA) specification

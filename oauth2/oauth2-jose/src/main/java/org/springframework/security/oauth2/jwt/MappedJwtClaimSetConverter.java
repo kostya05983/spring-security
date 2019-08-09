@@ -161,7 +161,7 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 
 	private Map<String, Object> removeClaims(Map<String, Object> claims) {
 		Map<String, Object> result = new HashMap<>();
-		for(Map.Entry<String, Object> entry: claims.entrySet()) {
+		for (Map.Entry<String, Object> entry: claims.entrySet()) {
 			if (entry.getValue() != null) {
 				result.put(entry.getKey(), entry.getValue());
 			}

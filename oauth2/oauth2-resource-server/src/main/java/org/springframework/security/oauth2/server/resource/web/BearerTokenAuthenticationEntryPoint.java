@@ -116,7 +116,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 		if (!parameters.isEmpty()) {
 			wwwAuthenticate.append(" ");
 			int i = 0;
-			for(Map.Entry<String, String> entry : parameters.entrySet()) {
+			for (Map.Entry<String, String> entry : parameters.entrySet()) {
 				wwwAuthenticate.append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");
 						if (i != parameters.size() - 1) {
 							wwwAuthenticate.append(", ");
