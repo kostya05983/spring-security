@@ -152,7 +152,7 @@ class HttpConfigurationBuilder {
 	private BeanDefinition invalidSession;
 	private boolean addAllAuth;
 
-	public HttpConfigurationBuilder(Element element, boolean addAllAuth,
+	HttpConfigurationBuilder(Element element, boolean addAllAuth,
 			ParserContext pc, BeanReference portMapper, BeanReference portResolver,
 			BeanReference authenticationManager) {
 		this.httpElt = element;
@@ -442,8 +442,8 @@ class HttpConfigurationBuilder {
 
 			if (sessionFixationProtectionRequired) {
 				sessionFixationStrategy.addPropertyValue("migrateSessionAttributes",
-						Boolean.valueOf(sessionFixationAttribute
-								.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
+						sessionFixationAttribute
+								.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION));
 			}
 		}
 

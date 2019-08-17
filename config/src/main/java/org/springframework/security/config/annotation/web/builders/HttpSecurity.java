@@ -78,7 +78,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -138,11 +137,11 @@ public final class HttpSecurity extends
 	@SuppressWarnings("unchecked")
 	public HttpSecurity(ObjectPostProcessor<Object> objectPostProcessor,
 			AuthenticationManagerBuilder authenticationBuilder,
-			Map<Class<? extends Object>, Object> sharedObjects) {
+			Map<Class<?>, Object> sharedObjects) {
 		super(objectPostProcessor);
 		Assert.notNull(authenticationBuilder, "authenticationBuilder cannot be null");
 		setSharedObject(AuthenticationManagerBuilder.class, authenticationBuilder);
-		for (Map.Entry<Class<? extends Object>, Object> entry : sharedObjects
+		for (Map.Entry<Class<?>, Object> entry : sharedObjects
 				.entrySet()) {
 			setSharedObject((Class<Object>) entry.getKey(), entry.getValue());
 		}
@@ -2327,7 +2326,7 @@ public final class HttpSecurity extends
 
 	@Override
 	protected DefaultSecurityFilterChain performBuild() throws Exception {
-		Collections.sort(filters, comparator);
+		filters.sort(comparator);
 		return new DefaultSecurityFilterChain(requestMatcher, filters);
 	}
 

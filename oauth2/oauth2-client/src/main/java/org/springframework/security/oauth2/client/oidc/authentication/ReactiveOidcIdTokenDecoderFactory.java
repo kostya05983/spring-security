@@ -15,6 +15,16 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -36,16 +46,6 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import javax.crypto.spec.SecretKeySpec;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSetUri;
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withSecretKey;
@@ -150,7 +150,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 				);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			return withJwkSetUri(jwkSetUri).jwsAlgorithm(jwsAlgorithm).build();
+			return withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm).build();
 		} else if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
 			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
 			//
@@ -194,7 +194,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	 *
 	 * @param jwtValidatorFactory the factory that provides an {@link OAuth2TokenValidator}
 	 */
-	public final void setJwtValidatorFactory(Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory) {
+	public void setJwtValidatorFactory(Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory) {
 		Assert.notNull(jwtValidatorFactory, "jwtValidatorFactory cannot be null");
 		this.jwtValidatorFactory = jwtValidatorFactory;
 	}
@@ -207,7 +207,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	 * @param jwsAlgorithmResolver the resolver that provides the expected {@link JwsAlgorithm JWS algorithm}
 	 *                             for a specific {@link ClientRegistration client}
 	 */
-	public final void setJwsAlgorithmResolver(Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver) {
+	public void setJwsAlgorithmResolver(Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver) {
 		Assert.notNull(jwsAlgorithmResolver, "jwsAlgorithmResolver cannot be null");
 		this.jwsAlgorithmResolver = jwsAlgorithmResolver;
 	}
@@ -219,7 +219,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used for type conversion
 	 *                                  of claim values for a specific {@link ClientRegistration client}
 	 */
-	public final void setClaimTypeConverterFactory(Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
+	public void setClaimTypeConverterFactory(Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
 	}

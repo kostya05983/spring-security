@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.Filter;
@@ -139,7 +138,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 			webSecurity.debug(debugEnabled);
 		}
 
-		Collections.sort(webSecurityConfigurers, AnnotationAwareOrderComparator.INSTANCE);
+		webSecurityConfigurers.sort(AnnotationAwareOrderComparator.INSTANCE);
 
 		Integer previousOrder = null;
 		Object previousConfig = null;

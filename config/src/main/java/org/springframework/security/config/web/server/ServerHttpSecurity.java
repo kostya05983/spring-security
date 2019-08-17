@@ -32,7 +32,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.springframework.security.config.Customizer;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -53,8 +52,8 @@ import org.springframework.security.authorization.AuthenticatedReactiveAuthoriza
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -91,8 +90,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusReactiveOAuth2TokenIntrospectionClient;
-import org.springframework.security.oauth2.server.resource.introspection.ReactiveOAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.NimbusReactiveOpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
@@ -103,7 +102,6 @@ import org.springframework.security.web.server.DelegatingServerAuthenticationEnt
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
@@ -233,6 +231,7 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
  * @author Rob Winch
  * @author Vedran Pavic
  * @author Rafiullah Hamedy
+ * @author Eddú Meléndez
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -973,6 +972,8 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
+		private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
+
 		private ServerAuthenticationConverter authenticationConverter;
 
 		private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
@@ -980,6 +981,8 @@ public class ServerHttpSecurity {
 		private ServerWebExchangeMatcher authenticationMatcher;
 
 		private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
+
+		private ServerAuthenticationFailureHandler authenticationFailureHandler = (webFilterExchange, exception) -> Mono.error(exception);
 
 		/**
 		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
@@ -989,6 +992,19 @@ public class ServerHttpSecurity {
 		 */
 		public OAuth2LoginSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		/**
+		 * The {@link ServerSecurityContextRepository} used to save the {@code Authentication}. Defaults to
+		 * {@link WebSessionServerSecurityContextRepository}.
+		 *
+		 * @since 5.2
+		 * @param securityContextRepository the repository to use
+		 * @return the {@link OAuth2LoginSpec} to continue configuring
+		 */
+		public OAuth2LoginSpec securityContextRepository(ServerSecurityContextRepository securityContextRepository) {
+			this.securityContextRepository = securityContextRepository;
 			return this;
 		}
 
@@ -1003,6 +1019,19 @@ public class ServerHttpSecurity {
 		public OAuth2LoginSpec authenticationSuccessHandler(ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
 			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
 			this.authenticationSuccessHandler = authenticationSuccessHandler;
+			return this;
+		}
+
+		/**
+		 * The {@link ServerAuthenticationFailureHandler} used after authentication failure.
+		 *
+		 * @since 5.2
+		 * @param authenticationFailureHandler the failure handler to use
+		 * @return the {@link OAuth2LoginSpec} to customize
+		 */
+		public OAuth2LoginSpec authenticationFailureHandler(ServerAuthenticationFailureHandler authenticationFailureHandler) {
+			Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+			this.authenticationFailureHandler = authenticationFailureHandler;
 			return this;
 		}
 
@@ -1123,14 +1152,8 @@ public class ServerHttpSecurity {
 			authenticationFilter.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
 
 			authenticationFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
-			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationFailureHandler() {
-				@Override
-				public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange,
-						AuthenticationException exception) {
-					return Mono.error(exception);
-				}
-			});
-			authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
+			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
+			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
 					MediaType.TEXT_HTML);
@@ -1176,9 +1199,7 @@ public class ServerHttpSecurity {
 				return Collections.emptyMap();
 			}
 			Map<String, String> result = new HashMap<>();
-			registrations.iterator().forEachRemaining(r -> {
-				result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName());
-			});
+			registrations.iterator().forEachRemaining(r -> result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName()));
 			return result;
 		}
 
@@ -1799,7 +1820,7 @@ public class ServerHttpSecurity {
 			private String introspectionUri;
 			private String clientId;
 			private String clientSecret;
-			private Supplier<ReactiveOAuth2TokenIntrospectionClient> introspectionClient;
+			private Supplier<ReactiveOpaqueTokenIntrospector> introspector;
 
 			/**
 			 * Configures the URI of the Introspection endpoint
@@ -1809,8 +1830,8 @@ public class ServerHttpSecurity {
 			public OpaqueTokenSpec introspectionUri(String introspectionUri) {
 				Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 				this.introspectionUri = introspectionUri;
-				this.introspectionClient = () ->
-						new NimbusReactiveOAuth2TokenIntrospectionClient(
+				this.introspector = () ->
+						new NimbusReactiveOpaqueTokenIntrospector(
 								this.introspectionUri, this.clientId, this.clientSecret);
 				return this;
 			}
@@ -1826,15 +1847,15 @@ public class ServerHttpSecurity {
 				Assert.notNull(clientSecret, "clientSecret cannot be null");
 				this.clientId = clientId;
 				this.clientSecret = clientSecret;
-				this.introspectionClient = () ->
-						new NimbusReactiveOAuth2TokenIntrospectionClient(
+				this.introspector = () ->
+						new NimbusReactiveOpaqueTokenIntrospector(
 								this.introspectionUri, this.clientId, this.clientSecret);
 				return this;
 			}
 
-			public OpaqueTokenSpec introspectionClient(ReactiveOAuth2TokenIntrospectionClient introspectionClient) {
-				Assert.notNull(introspectionClient, "introspectionClient cannot be null");
-				this.introspectionClient = () -> introspectionClient;
+			public OpaqueTokenSpec introspector(ReactiveOpaqueTokenIntrospector introspector) {
+				Assert.notNull(introspector, "introspector cannot be null");
+				this.introspector = () -> introspector;
 				return this;
 			}
 
@@ -1847,14 +1868,14 @@ public class ServerHttpSecurity {
 			}
 
 			protected ReactiveAuthenticationManager getAuthenticationManager() {
-				return new OAuth2IntrospectionReactiveAuthenticationManager(getIntrospectionClient());
+				return new OAuth2IntrospectionReactiveAuthenticationManager(getIntrospector());
 			}
 
-			protected ReactiveOAuth2TokenIntrospectionClient getIntrospectionClient() {
-				if (this.introspectionClient != null) {
-					return this.introspectionClient.get();
+			protected ReactiveOpaqueTokenIntrospector getIntrospector() {
+				if (this.introspector != null) {
+					return this.introspector.get();
 				}
-				return getBean(ReactiveOAuth2TokenIntrospectionClient.class);
+				return getBean(ReactiveOpaqueTokenIntrospector.class);
 			}
 
 			protected void configure(ServerHttpSecurity http) {
@@ -3637,7 +3658,7 @@ public class ServerHttpSecurity {
 		private final WebFilter webFilter;
 		private final int order;
 
-		public OrderedWebFilter(WebFilter webFilter, int order) {
+		OrderedWebFilter(WebFilter webFilter, int order) {
 			this.webFilter = webFilter;
 			this.order = order;
 		}

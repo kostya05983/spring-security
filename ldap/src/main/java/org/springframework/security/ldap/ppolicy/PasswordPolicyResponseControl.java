@@ -299,7 +299,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 						return new BEREnumerated(stream, bytesRead);
 					}
 					else {
-						if (this.inChoice.booleanValue()) {
+						if (this.inChoice) {
 							// graceLogins
 							return new BERInteger(stream, bytesRead);
 						}
@@ -310,7 +310,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 			}
 
 			private void setInChoice(boolean inChoice) {
-				this.inChoice = Boolean.valueOf(inChoice);
+				this.inChoice = inChoice;
 			}
 		}
 	}
