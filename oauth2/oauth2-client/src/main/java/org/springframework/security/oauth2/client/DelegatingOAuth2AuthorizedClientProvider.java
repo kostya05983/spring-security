@@ -63,17 +63,12 @@ public final class DelegatingOAuth2AuthorizedClientProvider implements OAuth2Aut
 	@Nullable
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-		List<OAuth2AuthorizedClient> clients = new ArrayList<>();
 		for (OAuth2AuthorizedClientProvider authorizedClientProvider: authorizedClientProviders) {
 			final OAuth2AuthorizedClient oauth2AuthorizedClient = authorizedClientProvider.authorize(context);
 			if (oauth2AuthorizedClient != null) {
-				clients.add(oauth2AuthorizedClient);
+				return oauth2AuthorizedClient;
 			}
 		}
-		if (!clients.isEmpty()) {
-			return clients.get(0);
-		} else {
-			return null;
-		}
+		return null;
 	}
 }
