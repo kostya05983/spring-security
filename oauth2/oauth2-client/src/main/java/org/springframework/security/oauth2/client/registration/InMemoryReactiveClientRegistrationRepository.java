@@ -78,7 +78,7 @@ public final class InMemoryReactiveClientRegistrationRepository
 	}
 
 	private ConcurrentHashMap<String, ClientRegistration> toConcurrentMap(List<ClientRegistration> registrations) {
-		final ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
+		ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
 		for (ClientRegistration registration : registrations) {
 			result.put(registration.getRegistrationId(), registration);
 		}

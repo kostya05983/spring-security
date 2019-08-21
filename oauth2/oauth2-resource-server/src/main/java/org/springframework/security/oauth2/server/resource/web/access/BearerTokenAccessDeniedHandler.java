@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * Translates any {@link AccessDeniedException} into an HTTP response in accordance with
  * <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750 Section 3: The WWW-Authenticate</a>.
- *
+ * <p>
  * So long as the class can prove that the request has a valid OAuth 2.0 {@link Authentication}, then will return an
  * <a href="https://tools.ietf.org/html/rfc6750#section-3.1" target="_blank">insufficient scope error</a>; otherwise,
  * it will simply indicate the scheme (Bearer) and any configured realm.
@@ -50,10 +50,9 @@ public final class BearerTokenAccessDeniedHandler implements AccessDeniedHandler
 	 * Collect error details from the provided parameters and format according to
 	 * RFC 6750, specifically {@code error}, {@code error_description}, {@code error_uri}, and {@code scope}.
 	 *
-	 * @param request that resulted in an <code>AccessDeniedException</code>
-	 * @param response so that the user agent can be advised of the failure
+	 * @param request               that resulted in an <code>AccessDeniedException</code>
+	 * @param response              so that the user agent can be advised of the failure
 	 * @param accessDeniedException that caused the invocation
-	 *
 	 */
 	@Override
 	public void handle(
@@ -89,13 +88,15 @@ public final class BearerTokenAccessDeniedHandler implements AccessDeniedHandler
 	}
 
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
-		final StringBuilder wwwAuthenticate = new StringBuilder();
+		StringBuilder wwwAuthenticate = new StringBuilder();
 		wwwAuthenticate.append("Bearer");
+
 		if (!parameters.isEmpty()) {
 			wwwAuthenticate.append(" ");
 			int i = 0;
 			for (Map.Entry<String, String> entry : parameters.entrySet()) {
 				wwwAuthenticate.append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");
+
 				if (i != parameters.size() - 1) {
 					wwwAuthenticate.append(", ");
 				}

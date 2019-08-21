@@ -16,14 +16,17 @@
 
 package org.springframework.security.converter;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.*;
+import java.util.List;
+import java.util.Base64;
 import java.util.stream.Collectors;
 
 import org.springframework.core.convert.converter.Converter;
@@ -64,7 +67,7 @@ public class RsaKeyConverters {
 					"Key is not in PEM-encoded PKCS#8 format, " +
 							"please check that the header begins with -----" + PKCS8_PEM_HEADER + "-----");
 			StringBuilder base64Encoded = new StringBuilder();
-			for (String line: lines) {
+			for (String line : lines) {
 				if (RsaKeyConverters.isNotPkcs8Wrapper(line)) {
 					base64Encoded.append(line);
 				}
@@ -98,7 +101,7 @@ public class RsaKeyConverters {
 					"Key is not in PEM-encoded X.509 format, " +
 							"please check that the header begins with -----" + X509_PEM_HEADER + "-----");
 			StringBuilder base64Encoded = new StringBuilder();
-			for (String line: lines) {
+			for (String line : lines) {
 				if (RsaKeyConverters.isNotX509Wrapper(line)) {
 					base64Encoded.append(line);
 				}

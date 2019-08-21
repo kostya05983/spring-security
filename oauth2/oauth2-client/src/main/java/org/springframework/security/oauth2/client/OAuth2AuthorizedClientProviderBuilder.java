@@ -21,7 +21,10 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGra
 import org.springframework.util.Assert;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Map;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 /**

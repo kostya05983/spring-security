@@ -87,7 +87,7 @@ public enum SignatureAlgorithm implements JwsAlgorithm {
 	 * @return the resolved {@code SignatureAlgorithm}, or {@code null} if not found
 	 */
 	public static SignatureAlgorithm from(String name) {
-		for (SignatureAlgorithm value: values()) {
+		for (SignatureAlgorithm value : values()) {
 			if (value.getName().equals(name)) {
 				return value;
 			}

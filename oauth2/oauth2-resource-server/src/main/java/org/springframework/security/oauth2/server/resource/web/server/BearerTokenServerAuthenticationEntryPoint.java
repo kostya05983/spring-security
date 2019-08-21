@@ -41,10 +41,10 @@ import java.util.Map;
  * {@code WWW-Authenticate} HTTP header.
  *
  * @author Rob Winch
- * @since 5.1
  * @see BearerTokenError
  * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750 Section 3: The WWW-Authenticate
  * Response Header Field</a>
+ * @since 5.1
  */
 public final class BearerTokenServerAuthenticationEntryPoint implements
 		ServerAuthenticationEntryPoint {
@@ -110,8 +110,9 @@ public final class BearerTokenServerAuthenticationEntryPoint implements
 	}
 
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
-		final StringBuilder wwwAuthenticate = new StringBuilder();
+		StringBuilder wwwAuthenticate = new StringBuilder();
 		wwwAuthenticate.append("Bearer");
+
 		if (!parameters.isEmpty()) {
 			wwwAuthenticate.append(" ");
 			int i = 0;

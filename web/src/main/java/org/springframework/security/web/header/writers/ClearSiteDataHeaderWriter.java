@@ -82,7 +82,7 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 	}
 
 	private String joinQuotes(String ...sources) {
-		final StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < sources.length-1; i++) {
 			sb.append(quote(sources[i])).append(", ");
 		}
