@@ -44,8 +44,8 @@ import java.util.ArrayList;
  * and returning it from {@link #getName()}.
  *
  * @author Joe Grandja
- * @since 5.0
  * @see OAuth2User
+ * @since 5.0
  */
 public class DefaultOAuth2User implements OAuth2User, Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
@@ -56,8 +56,8 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	/**
 	 * Constructs a {@code DefaultOAuth2User} using the provided parameters.
 	 *
-	 * @param authorities the authorities granted to the user
-	 * @param attributes the attributes about the user
+	 * @param authorities      the authorities granted to the user
+	 * @param attributes       the attributes about the user
 	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
 	 */
 	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
@@ -89,7 +89,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 
 	private Set<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
 		SortedSet<GrantedAuthority> sortedAuthorities =
-			new TreeSet<>(Comparator.comparing(GrantedAuthority::getAuthority));
+				new TreeSet<>(Comparator.comparing(GrantedAuthority::getAuthority));
 		sortedAuthorities.addAll(authorities);
 		return sortedAuthorities;
 	}
@@ -136,8 +136,8 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	}
 
 	private String collectAuthorities(Collection<? extends GrantedAuthority> authorities) {
-		final StringBuilder sb = new StringBuilder();
-		final List<GrantedAuthority> list = new ArrayList<>(authorities);
+		StringBuilder sb = new StringBuilder();
+		List<GrantedAuthority> list = new ArrayList<>(authorities);
 		for (int i = 0; i < list.size() - 1; i++) {
 			sb.append(list.get(i).getAuthority()).append(", ");
 		}
@@ -146,13 +146,16 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	}
 
 	private String collectAttributes(Set<Map.Entry<String, Object>> entrySet) {
-		final List<Map.Entry<String, Object>> list = new ArrayList<>(entrySet);
-		final StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 
-		for (int i = 0; i< list.size() - 1; i++) {
-			sb.append(list.get(i).getKey()).append("=").append(list.get(i).getValue()).append(", ");
+		int i = 0;
+		for (Map.Entry<String, Object> entry : entrySet) {
+			sb.append(entry.getKey()).append("=").append(entry.getValue()).append(", ");
+			if (i != entrySet.size() - 1) {
+				sb.append(", ");
+			}
+			i++;
 		}
-		sb.append(list.get(list.size() - 1).getKey()).append("=").append(list.get(list.size() - 1).getValue());
 		return sb.toString();
 	}
 }

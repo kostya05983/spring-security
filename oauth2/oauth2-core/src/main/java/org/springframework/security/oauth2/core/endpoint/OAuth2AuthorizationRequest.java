@@ -400,7 +400,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		private LinkedHashSet<String> toLinkedHashSet(String... scope) {
-			final LinkedHashSet<String> result = new LinkedHashSet<>();
+			LinkedHashSet<String> result = new LinkedHashSet<>();
 			Collections.addAll(result, scope);
 			return result;
 		}

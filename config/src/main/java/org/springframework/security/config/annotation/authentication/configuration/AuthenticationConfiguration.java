@@ -172,7 +172,7 @@ public class AuthenticationConfiguration {
 	}
 
 	private List<String> getPrimaryBeanNames(String[] beanNamesForType) {
-		final List<String> list = new ArrayList<>();
+		List<String> list = new ArrayList<>();
 		if (!(applicationContext instanceof ConfigurableApplicationContext)) {
 			return Collections.emptyList();
 		}
