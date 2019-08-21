@@ -136,7 +136,7 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	private static OAuth2Error invalidIdToken(Map<String, Object> invalidClaims) {
-		final StringBuilder claimsDetail = new StringBuilder();
+		StringBuilder claimsDetail = new StringBuilder();
 		int i = 0;
 		for (Map.Entry<String, Object> entry : invalidClaims.entrySet()) {
 			claimsDetail.append(entry.getKey()).append(" (").append(entry.getValue()).append(")");
