@@ -65,9 +65,9 @@ public final class DelegatingOAuth2AuthorizedClientProvider implements OAuth2Aut
 		Assert.notNull(context, "context cannot be null");
 		final List<OAuth2AuthorizedClient> clients = new ArrayList<>();
 		for (OAuth2AuthorizedClientProvider authorizedClientProvider: authorizedClientProviders) {
-			final OAuth2AuthorizedClient auth2AuthorizedClient = authorizedClientProvider.authorize(context);
-			if (auth2AuthorizedClient != null) {
-				clients.add(auth2AuthorizedClient);
+			final OAuth2AuthorizedClient oauth2AuthorizedClient = authorizedClientProvider.authorize(context);
+			if (oauth2AuthorizedClient != null) {
+				clients.add(oauth2AuthorizedClient);
 			}
 		}
 		if (!clients.isEmpty()) {

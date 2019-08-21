@@ -143,6 +143,7 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 			if (i != invalidClaims.size() - 1) {
 				claimsDetail.append(", ");
 			}
+			i++;
 		}
 		return new OAuth2Error("invalid_id_token",
 				"The ID Token contains invalid claims: " + claimsDetail,
