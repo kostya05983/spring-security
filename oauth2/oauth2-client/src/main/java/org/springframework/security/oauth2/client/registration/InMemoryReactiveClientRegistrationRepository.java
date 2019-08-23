@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.util.Assert;
-import org.springframework.util.ConcurrentReferenceHashMap;
 
 import reactor.core.publisher.Mono;
 
@@ -29,6 +28,7 @@ import reactor.core.publisher.Mono;
  * A Reactive {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) in-memory.
  *
  * @author Rob Winch
+ * @author Ebert Toribio
  * @since 5.1
  * @see ClientRegistrationRepository
  * @see ClientRegistration
@@ -45,7 +45,7 @@ public final class InMemoryReactiveClientRegistrationRepository
 	 */
 	public InMemoryReactiveClientRegistrationRepository(ClientRegistration... registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
-		this.clientIdToClientRegistration = new ConcurrentReferenceHashMap<>();
+		this.clientIdToClientRegistration = new ConcurrentHashMap<>();
 		for (ClientRegistration registration : registrations) {
 			Assert.notNull(registration, "registrations cannot contain null values");
 			this.clientIdToClientRegistration.put(registration.getRegistrationId(), registration);
