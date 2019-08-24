@@ -176,7 +176,7 @@ public class AuthenticationConfiguration {
 		if (!(applicationContext instanceof ConfigurableApplicationContext)) {
 			return Collections.emptyList();
 		}
-		for (String beanName: beanNamesForType) {
+		for (String beanName : beanNamesForType) {
 			if (((ConfigurableApplicationContext) applicationContext).getBeanFactory()
 					.getBeanDefinition(beanName).isPrimary()) {
 				list.add(beanName);

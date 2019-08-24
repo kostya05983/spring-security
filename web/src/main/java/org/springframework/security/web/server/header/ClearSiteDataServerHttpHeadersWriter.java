@@ -78,7 +78,7 @@ public final class ClearSiteDataServerHttpHeadersWriter implements ServerHttpHea
 	}
 
 	private String transformToHeaderValue(Directive... directives) {
-		final StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < directives.length - 1; i++) {
 			sb.append(directives[i].headerValue).append(", ");
 		}

@@ -136,17 +136,8 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	private static OAuth2Error invalidIdToken(Map<String, Object> invalidClaims) {
-		StringBuilder claimsDetail = new StringBuilder();
-		int i = 0;
-		for (Map.Entry<String, Object> entry : invalidClaims.entrySet()) {
-			claimsDetail.append(entry.getKey()).append(" (").append(entry.getValue()).append(")");
-			if (i != invalidClaims.size() - 1) {
-				claimsDetail.append(", ");
-			}
-			i++;
-		}
 		return new OAuth2Error("invalid_id_token",
-				"The ID Token contains invalid claims: " + claimsDetail,
+				"The ID Token contains invalid claims: " + invalidClaims,
 				"https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation");
 	}
 

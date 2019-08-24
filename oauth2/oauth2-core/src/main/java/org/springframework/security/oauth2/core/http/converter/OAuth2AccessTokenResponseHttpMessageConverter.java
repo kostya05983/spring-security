@@ -165,7 +165,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 			String refreshToken = tokenResponseParameters.get(OAuth2ParameterNames.REFRESH_TOKEN);
 
 			Map<String, Object> additionalParameters = new LinkedHashMap<>();
-			for (Map.Entry<String, String> entry: tokenResponseParameters.entrySet()) {
+			for (Map.Entry<String, String> entry : tokenResponseParameters.entrySet()) {
 				if (!TOKEN_RESPONSE_PARAMETER_NAMES.contains(entry.getKey())) {
 					additionalParameters.put(entry.getKey(), entry.getValue());
 				}
@@ -207,7 +207,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 				parameters.put(OAuth2ParameterNames.REFRESH_TOKEN, tokenResponse.getRefreshToken().getTokenValue());
 			}
 			if (!CollectionUtils.isEmpty(tokenResponse.getAdditionalParameters())) {
-				for (Map.Entry<String, Object> entry: tokenResponse.getAdditionalParameters().entrySet()) {
+				for (Map.Entry<String, Object> entry : tokenResponse.getAdditionalParameters().entrySet()) {
 					parameters.put(entry.getKey(), entry.getValue().toString());
 				}
 			}
