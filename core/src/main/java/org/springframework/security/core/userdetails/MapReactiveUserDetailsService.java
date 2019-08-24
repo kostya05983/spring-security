@@ -55,11 +55,10 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	 */
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
 		Assert.notEmpty(users, "users cannot be null or empty");
-		final ConcurrentHashMap<String, UserDetails> map = new ConcurrentHashMap<>();
-		for (UserDetails user: users) {
-			map.put(user.getUsername(), user);
+		this.users = new ConcurrentHashMap<>();
+		for (UserDetails user : users) {
+			this.users.put(getKey(user.getUsername()), user);
 		}
-		this.users = map;
 	}
 
 	@Override

@@ -236,7 +236,7 @@ public class OidcIdTokenValidatorTests {
 		assertThat(this.validateIdToken())
 				.hasSize(1)
 				.extracting(OAuth2Error::getDescription)
-				.allMatch(msg -> msg.equals("The ID Token contains invalid claims: sub (null), aud (null)"));
+				.allMatch(msg -> msg.equals("The ID Token contains invalid claims: {sub=null, aud=null}"));
 	}
 
 	private Collection<OAuth2Error> validateIdToken() {

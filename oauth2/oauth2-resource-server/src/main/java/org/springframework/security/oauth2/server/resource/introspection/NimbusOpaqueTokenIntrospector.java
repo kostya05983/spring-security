@@ -193,7 +193,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		Map<String, Object> claims = response.toJSONObject();
 		if (response.getAudience() != null) {
 			List<String> audiences = new ArrayList<>();
-			for (Audience audience: response.getAudience()) {
+			for (Audience audience : response.getAudience()) {
 				audiences.add(audience.getValue());
 			}
 			claims.put(AUDIENCE, Collections.unmodifiableList(audiences));

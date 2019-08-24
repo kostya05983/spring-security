@@ -61,12 +61,8 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	}
 
 	private static Map<String, ClientRegistration> toUnmodifiableConcurrentMap(List<ClientRegistration> registrations) {
-		final ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
+		ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
 		for (ClientRegistration registration : registrations) {
-			if (result.containsKey(registration.getRegistrationId())) {
-					throw new IllegalStateException(String.format("Duplicate key %s",
-							registration.getRegistrationId()));
-			}
 			result.put(registration.getRegistrationId(), registration);
 		}
 		return Collections.unmodifiableMap(result);

@@ -128,16 +128,16 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		sb.append("Name: [");
 		sb.append(this.getName());
 		sb.append("], Granted Authorities: [");
-		sb.append(collectAuthorities(this.getAuthorities()));
+		sb.append(collectAuthorities());
 		sb.append("], User Attributes: [");
-		sb.append(collectAttributes(this.attributes.entrySet()));
+		sb.append(collectAttributes());
 		sb.append("]");
 		return sb.toString();
 	}
 
-	private String collectAuthorities(Collection<? extends GrantedAuthority> authorities) {
+	private String collectAuthorities() {
 		StringBuilder sb = new StringBuilder();
-		List<GrantedAuthority> list = new ArrayList<>(authorities);
+		List<GrantedAuthority> list = new ArrayList<>(this.authorities);
 		for (int i = 0; i < list.size() - 1; i++) {
 			sb.append(list.get(i).getAuthority()).append(", ");
 		}
@@ -145,7 +145,8 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		return sb.toString();
 	}
 
-	private String collectAttributes(Set<Map.Entry<String, Object>> entrySet) {
+	private String collectAttributes() {
+		Set<Map.Entry<String, Object>> entrySet = this.attributes.entrySet();
 		StringBuilder sb = new StringBuilder();
 
 		int i = 0;
