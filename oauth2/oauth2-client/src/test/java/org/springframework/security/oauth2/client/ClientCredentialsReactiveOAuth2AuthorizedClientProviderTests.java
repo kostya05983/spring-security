@@ -19,14 +19,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -38,20 +39,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for {@link ClientCredentialsOAuth2AuthorizedClientProvider}.
+ * Tests for {@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider}.
  *
  * @author Joe Grandja
  */
-public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
-	private ClientCredentialsOAuth2AuthorizedClientProvider authorizedClientProvider;
-	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
+public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
+	private ClientCredentialsReactiveOAuth2AuthorizedClientProvider authorizedClientProvider;
+	private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
 	private ClientRegistration clientRegistration;
 	private Authentication principal;
 
 	@Before
 	public void setup() {
-		this.authorizedClientProvider = new ClientCredentialsOAuth2AuthorizedClientProvider();
-		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
+		this.authorizedClientProvider = new ClientCredentialsReactiveOAuth2AuthorizedClientProvider();
+		this.accessTokenResponseClient = mock(ReactiveOAuth2AccessTokenResponseClient.class);
 		this.authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
 		this.clientRegistration = TestClientRegistrations.clientCredentials().build();
 		this.principal = new TestingAuthenticationToken("principal", "password");
@@ -87,7 +88,7 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(null))
+		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("context cannot be null");
 	}
@@ -100,19 +101,19 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 				OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
 						.principal(this.principal)
 						.build();
-		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
+		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 
 	@Test
 	public void authorizeWhenClientCredentialsAndNotAuthorizedThenAuthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.withClientRegistration(this.clientRegistration)
 						.principal(this.principal)
 						.build();
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
 
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
@@ -129,13 +130,13 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 				this.clientRegistration, this.principal.getName(), accessToken);
 
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(this.principal)
 						.build();
-		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
+		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
 
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
@@ -151,6 +152,6 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(this.principal)
 						.build();
-		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
+		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
 }

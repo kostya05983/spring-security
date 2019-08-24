@@ -15,59 +15,57 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
-import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
+import reactor.core.publisher.Mono;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
 /**
- * An implementation of an {@link OAuth2AuthorizedClientProvider}
+ * An implementation of a {@link ReactiveOAuth2AuthorizedClientProvider}
  * for the {@link AuthorizationGrantType#CLIENT_CREDENTIALS client_credentials} grant.
  *
  * @author Joe Grandja
  * @since 5.2
- * @see OAuth2AuthorizedClientProvider
- * @see DefaultClientCredentialsTokenResponseClient
+ * @see ReactiveOAuth2AuthorizedClientProvider
+ * @see WebClientReactiveClientCredentialsTokenResponseClient
  */
-public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
-	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient =
-			new DefaultClientCredentialsTokenResponseClient();
+public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider implements ReactiveOAuth2AuthorizedClientProvider {
+	private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient =
+			new WebClientReactiveClientCredentialsTokenResponseClient();
 	private Duration clockSkew = Duration.ofSeconds(60);
 	private Clock clock = Clock.systemUTC();
 
 	/**
 	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
-	 * Returns {@code null} if authorization (or re-authorization) is not supported,
+	 * Returns an empty {@code Mono} if authorization (or re-authorization) is not supported,
 	 * e.g. the client's {@link ClientRegistration#getAuthorizationGrantType() authorization grant type}
 	 * is not {@link AuthorizationGrantType#CLIENT_CREDENTIALS client_credentials} OR
 	 * the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
 	 *
 	 * @param context the context that holds authorization-specific state for the client
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization (or re-authorization) is not supported
+	 * @return the {@link OAuth2AuthorizedClient} or an empty {@code Mono} if authorization (or re-authorization) is not supported
 	 */
 	@Override
-	@Nullable
-	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
+	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		if (!AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
-			return null;
+			return Mono.empty();
 		}
 
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
 		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
 			// If client is already authorized but access token is NOT expired than no need for re-authorization
-			return null;
+			return Mono.empty();
 		}
 
 		// As per spec, in section 4.4.3 Access Token Response
@@ -77,12 +75,10 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 		// Therefore, renewing an expired access token (re-authorization)
 		// is the same as acquiring a new access token (authorization).
 
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(clientRegistration);
-		OAuth2AccessTokenResponse tokenResponse =
-				this.accessTokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
-
-		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(), tokenResponse.getAccessToken());
+		return Mono.just(new OAuth2ClientCredentialsGrantRequest(clientRegistration))
+				.flatMap(this.accessTokenResponseClient::getTokenResponse)
+				.map(tokenResponse -> new OAuth2AuthorizedClient(
+						clientRegistration, context.getPrincipal().getName(), tokenResponse.getAccessToken()));
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {
@@ -94,7 +90,7 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	 *
 	 * @param accessTokenResponseClient the client used when requesting an access token credential at the Token Endpoint for the {@code client_credentials} grant
 	 */
-	public void setAccessTokenResponseClient(OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient) {
+	public void setAccessTokenResponseClient(ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
 	}
