@@ -16,12 +16,11 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -129,14 +128,12 @@ public final class OAuth2IntrospectionAuthenticationProvider implements Authenti
 	}
 
 	private Collection<GrantedAuthority> extractAuthorities(Map<String, Object> claims) {
-		Collection<String> scopes = Optional.ofNullable((Collection<String>) claims.get(SCOPE))
-				.orElse(Collections.emptyList());
-
-		List<GrantedAuthority> result = new ArrayList<>();
-		for (String authority : scopes) {
-			result.add(new SimpleGrantedAuthority("SCOPE_" + authority));
+		Collection<String> scopes = (Collection<String>) claims.getOrDefault(SCOPE, Collections.emptyList());
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		for (String scope : scopes) {
+			authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
 		}
-		return result;
+		return authorities;
 	}
 
 	private static BearerTokenError invalidToken(String message) {
