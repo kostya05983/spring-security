@@ -20,7 +20,6 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
@@ -30,7 +29,6 @@ import java.util.TreeSet;
 import java.util.SortedSet;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
-import java.util.ArrayList;
 
 /**
  * The default implementation of an {@link OAuth2User}.
@@ -128,35 +126,10 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		sb.append("Name: [");
 		sb.append(this.getName());
 		sb.append("], Granted Authorities: [");
-		sb.append(collectAuthorities());
+		sb.append(getAuthorities());
 		sb.append("], User Attributes: [");
-		sb.append(collectAttributes());
+		sb.append(getAttributes());
 		sb.append("]");
-		return sb.toString();
-	}
-
-	private String collectAuthorities() {
-		StringBuilder sb = new StringBuilder();
-		List<GrantedAuthority> list = new ArrayList<>(this.authorities);
-		for (int i = 0; i < list.size() - 1; i++) {
-			sb.append(list.get(i).getAuthority()).append(", ");
-		}
-		sb.append(list.get(list.size() - 1).getAuthority());
-		return sb.toString();
-	}
-
-	private String collectAttributes() {
-		Set<Map.Entry<String, Object>> entrySet = this.attributes.entrySet();
-		StringBuilder sb = new StringBuilder();
-
-		int i = 0;
-		for (Map.Entry<String, Object> entry : entrySet) {
-			sb.append(entry.getKey()).append("=").append(entry.getValue()).append(", ");
-			if (i != entrySet.size() - 1) {
-				sb.append(", ");
-			}
-			i++;
-		}
 		return sb.toString();
 	}
 }
